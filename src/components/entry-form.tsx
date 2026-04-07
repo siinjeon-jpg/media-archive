@@ -44,7 +44,7 @@ export function EntryForm({
             disabled={disabled}
             defaultValue={entry?.title}
             className={inputClassName}
-            placeholder="작품 제목을 적어주세요"
+            placeholder="작품 제목"
           />
         </label>
 
@@ -105,7 +105,7 @@ export function EntryForm({
             disabled={disabled}
             defaultValue={entry?.country}
             className={inputClassName}
-            placeholder="일본, 한국, 미국..."
+            placeholder="예: 일본, 한국, 미국"
           />
         </label>
 
@@ -119,7 +119,7 @@ export function EntryForm({
             disabled={disabled}
             defaultValue={entry?.review}
             className={inputClassName}
-            placeholder="짧게 남기고 싶은 첫인상을 적어주세요"
+            placeholder="짧은 감상을 남겨보세요"
           />
         </label>
 
@@ -132,7 +132,7 @@ export function EntryForm({
             disabled={disabled}
             defaultValue={entry?.memo}
             className={textareaClassName}
-            placeholder="인상 깊었던 장면, 좋았던 이유, 아쉬웠던 점을 편하게 남겨보세요"
+            placeholder="기억해두고 싶은 내용을 적어보세요"
           />
         </label>
 
@@ -145,7 +145,7 @@ export function EntryForm({
             disabled={disabled}
             defaultValue={entry?.tags.join(", ")}
             className={inputClassName}
-            placeholder="판타지, 여운, 미스터리"
+            placeholder="예: 판타지, 성장, 미스터리"
           />
         </label>
 
@@ -171,14 +171,14 @@ export function EntryForm({
             className="h-4 w-4 rounded border-white/20 bg-transparent"
           />
           <span className="text-sm text-foreground">
-            위시리스트에도 함께 표시
+            위시리스트에 함께 표시
           </span>
         </label>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
         <button type="submit" disabled={disabled} className={primaryButtonClassName}>
-          {disabled ? "여기서는 수정할 수 없어요" : entry ? "저장하기" : "기록 만들기"}
+          {disabled ? "샘플 기록은 수정할 수 없어요" : entry ? "저장" : "등록"}
         </button>
         <a
           href={entry ? `/archive/${entry.slug}` : "/archive"}

@@ -27,10 +27,73 @@ const entrySchema = z.object({
 });
 
 const emailSchema = z.string().email("올바른 이메일 주소를 입력해 주세요.");
+const passwordSchema = z.string().min(6, "비밀번호는 6자 이상 입력해 주세요.");
+const signInSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, "비밀번호를 입력해 주세요.")
+});
+const signUpSchema = z
+  .object({
+    email: emailSchema,
+    password: passwordSchema,
+    confirmPassword: z.string().min(1, "비밀번호 확인을 입력해 주세요.")
+  })
+  .superRefine(({ password, confirmPassword }, context) => {
+    if (password !== confirmPassword) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "비밀번호가 서로 다릅니다.",
+        path: ["confirmPassword"]
+      });
+    }
+  });
 
 function redirectWithError(path: string, message: string): never {
   const divider = path.includes("?") ? "&" : "?";
   redirect(`${path}${divider}error=${encodeURIComponent(message)}`);
+}
+
+function redirectLoginError(message: string): never {
+  redirect(`/login?error=${encodeURIComponent(message)}`);
+}
+
+function redirectLoginMessage(message: string): never {
+  redirect(`/login?message=${encodeURIComponent(message)}`);
+}
+
+function getAuthRedirectUrl() {
+  const origin = headers().get("origin");
+
+  return process.env.NODE_ENV !== "production" ? getSiteUrl() : origin || getSiteUrl();
+}
+
+function mapAuthErrorMessage(errorMessage: string, fallback: string) {
+  const normalized = errorMessage.toLowerCase();
+
+  if (normalized.includes("invalid login credentials")) {
+    return "이메일 또는 비밀번호를 확인해 주세요.";
+  }
+
+  if (normalized.includes("email not confirmed")) {
+    return "이메일 인증을 먼저 완료해 주세요.";
+  }
+
+  if (normalized.includes("user already registered")) {
+    return "이미 가입된 이메일입니다. 로그인해 주세요.";
+  }
+
+  if (
+    normalized.includes("password should be at least") ||
+    normalized.includes("password is too short")
+  ) {
+    return "비밀번호는 6자 이상 입력해 주세요.";
+  }
+
+  if (normalized.includes("signup is disabled")) {
+    return "현재 회원가입을 사용할 수 없어요.";
+  }
+
+  return fallback;
 }
 
 async function createUniqueSlug(
@@ -86,9 +149,7 @@ export async function saveEntryAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(
-      `/login?error=${encodeURIComponent("기록을 저장하려면 로그인해 주세요.")}`
-    );
+    redirectLoginError("기록을 저장하려면 로그인해 주세요.");
   }
 
   const rawRating = sanitizeText(formData.get("rating"));
@@ -179,9 +240,7 @@ export async function deleteEntryAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(
-      `/login?error=${encodeURIComponent("기록을 삭제하려면 로그인해 주세요.")}`
-    );
+    redirectLoginError("기록을 삭제하려면 로그인해 주세요.");
   }
 
   const { error } = await supabase
@@ -201,48 +260,84 @@ export async function deleteEntryAction(formData: FormData) {
   redirect("/archive?deleted=1");
 }
 
-export async function requestMagicLinkAction(formData: FormData) {
+export async function signInWithPasswordAction(formData: FormData) {
   if (!isSupabaseConfigured()) {
-    redirect(
-      `/login?error=${encodeURIComponent(
-        "Supabase 환경 변수를 먼저 설정해 주세요."
-      )}`
-    );
+    redirectLoginError("Supabase 환경 변수를 먼저 설정해 주세요.");
   }
 
-  const emailResult = emailSchema.safeParse(sanitizeText(formData.get("email")));
+  const parsed = signInSchema.safeParse({
+    email: sanitizeText(formData.get("email")),
+    password: sanitizeText(formData.get("password"))
+  });
 
-  if (!emailResult.success) {
-    redirect(
-      `/login?error=${encodeURIComponent(
-        emailResult.error.issues[0]?.message ?? "올바른 이메일 주소를 입력해 주세요."
-      )}`
+  if (!parsed.success) {
+    redirectLoginError(
+      parsed.error.issues[0]?.message ?? "입력한 내용을 다시 확인해 주세요."
     );
   }
 
   const supabase = createServerSupabaseClient();
-  const origin = headers().get("origin");
-  const siteUrl =
-    process.env.NODE_ENV !== "production"
-      ? getSiteUrl()
-      : origin || getSiteUrl();
+  const { error } = await supabase.auth.signInWithPassword({
+    email: parsed.data.email,
+    password: parsed.data.password
+  });
 
-  const { error } = await supabase.auth.signInWithOtp({
-    email: emailResult.data,
+  if (error) {
+    redirectLoginError(
+      mapAuthErrorMessage(
+        error.message,
+        "로그인하지 못했어요. 이메일과 비밀번호를 확인해 주세요."
+      )
+    );
+  }
+
+  redirect("/dashboard");
+}
+
+export async function signUpWithPasswordAction(formData: FormData) {
+  if (!isSupabaseConfigured()) {
+    redirectLoginError("Supabase 환경 변수를 먼저 설정해 주세요.");
+  }
+
+  const parsed = signUpSchema.safeParse({
+    email: sanitizeText(formData.get("email")),
+    password: sanitizeText(formData.get("password")),
+    confirmPassword: sanitizeText(formData.get("confirmPassword"))
+  });
+
+  if (!parsed.success) {
+    redirectLoginError(
+      parsed.error.issues[0]?.message ?? "입력한 내용을 다시 확인해 주세요."
+    );
+  }
+
+  const supabase = createServerSupabaseClient();
+  const { data, error } = await supabase.auth.signUp({
+    email: parsed.data.email,
+    password: parsed.data.password,
     options: {
-      emailRedirectTo: `${siteUrl}/auth/callback?next=/dashboard`
+      emailRedirectTo: `${getAuthRedirectUrl()}/auth/callback?next=/dashboard`
     }
   });
 
   if (error) {
-    redirect(
-      `/login?error=${encodeURIComponent(
-        "매직 링크를 보내지 못했어요. 잠시 후 다시 시도해 주세요."
-      )}`
+    redirectLoginError(
+      mapAuthErrorMessage(
+        error.message,
+        "회원가입을 완료하지 못했어요. 잠시 후 다시 시도해 주세요."
+      )
     );
   }
 
-  redirect("/login?sent=1");
+  if (Array.isArray(data.user?.identities) && data.user.identities.length === 0) {
+    redirectLoginError("이미 가입된 이메일입니다. 로그인해 주세요.");
+  }
+
+  if (data.session) {
+    redirect("/dashboard");
+  }
+
+  redirectLoginMessage("가입 확인 메일을 보냈어요. 메일 인증 후 로그인해 주세요.");
 }
 
 export async function signOutAction() {

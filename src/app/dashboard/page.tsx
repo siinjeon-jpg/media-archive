@@ -15,11 +15,10 @@ export default async function DashboardPage() {
       <section className={`${shellCardClass} p-8`}>
         <p className="text-xs uppercase tracking-[0.24em] text-muted">대시보드</p>
         <h1 className="mt-3 font-display text-5xl text-foreground">
-          취향의 흐름 보기
+          기록 한눈에 보기
         </h1>
         <p className="mt-3 max-w-2xl text-base leading-8 text-muted">
-          어떤 형식의 작품이 많은지, 얼마나 끝까지 보는지, 어떤 나라의 작품이
-          자주 쌓이는지 한눈에 살펴볼 수 있어요.
+          카테고리, 상태, 월별 기록을 한 번에 확인할 수 있어요.
         </p>
       </section>
 
@@ -27,22 +26,22 @@ export default async function DashboardPage() {
         <MetricCard
           label="전체 기록"
           value={summary.totalEntries}
-          helper="지금까지 남긴 모든 작품 기록입니다."
+          helper="지금까지 남긴 기록입니다."
         />
         <MetricCard
           label="평균 평점"
           value={summary.averageRating.toFixed(1)}
-          helper="평점을 남긴 작품들의 평균 점수예요."
+          helper="평점을 남긴 기록의 평균입니다."
         />
         <MetricCard
           label="고평점"
           value={summary.highRatedCount}
-          helper="9점 이상으로 남긴 작품 수입니다."
+          helper="9점 이상으로 남긴 기록입니다."
         />
         <MetricCard
           label="위시리스트"
           value={summary.wishlistCount}
-          helper="나중을 위해 담아둔 작품 수예요."
+          helper="나중에 볼 작품 수입니다."
         />
       </section>
 
@@ -50,11 +49,9 @@ export default async function DashboardPage() {
 
       <section className="grid gap-6 lg:grid-cols-3">
         <div className={`${subtleCardClass} p-6`}>
-          <p className="text-xs uppercase tracking-[0.24em] text-muted">
-            카테고리 비율
-          </p>
+          <p className="text-xs uppercase tracking-[0.24em] text-muted">카테고리</p>
           <h2 className="mt-2 font-display text-3xl text-foreground">
-            어떤 형식이 많은지
+            카테고리별 기록
           </h2>
           <div className="mt-6 space-y-4">
             {summary.categoryBreakdown.map((bucket) => (
@@ -77,11 +74,9 @@ export default async function DashboardPage() {
         </div>
 
         <div className={`${subtleCardClass} p-6`}>
-          <p className="text-xs uppercase tracking-[0.24em] text-muted">
-            상태 비율
-          </p>
+          <p className="text-xs uppercase tracking-[0.24em] text-muted">상태</p>
           <h2 className="mt-2 font-display text-3xl text-foreground">
-            얼마나 끝까지 보는지
+            상태별 기록
           </h2>
           <div className="mt-6 space-y-4">
             {summary.statusBreakdown.map((bucket) => (
@@ -104,11 +99,9 @@ export default async function DashboardPage() {
         </div>
 
         <div className={`${subtleCardClass} p-6`}>
-          <p className="text-xs uppercase tracking-[0.24em] text-muted">
-            국가별 기록
-          </p>
+          <p className="text-xs uppercase tracking-[0.24em] text-muted">국가</p>
           <h2 className="mt-2 font-display text-3xl text-foreground">
-            자주 닿는 작품의 출발지
+            국가별 기록
           </h2>
           <div className="mt-6 space-y-4">
             {summary.topCountries.map((bucket) => (
@@ -134,9 +127,9 @@ export default async function DashboardPage() {
       <section className={`${subtleCardClass} p-6`}>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-muted">많이 붙인 태그</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-muted">태그</p>
             <h2 className="mt-2 font-display text-3xl text-foreground">
-              반복해서 남기는 취향의 결
+              자주 남긴 태그
             </h2>
           </div>
         </div>

@@ -36,7 +36,7 @@ export function SiteChrome({
               애프터테이스트 아카이브
             </span>
             <span className="text-xs uppercase tracking-[0.28em] text-muted">
-              오래 남은 장면과 취향을 모아두는 개인 아카이브
+              좋아한 작품을 차분히 정리해 두는 개인 아카이브
             </span>
           </Link>
 
@@ -47,17 +47,15 @@ export function SiteChrome({
               </Link>
             ))}
             <Link href="/archive/new" className={secondaryButtonClassName}>
-              기록 추가
+              새 기록
             </Link>
           </nav>
 
           <div className="flex items-center gap-2">
             <span className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs uppercase tracking-[0.2em] text-muted sm:inline-flex">
-              {viewer.mode === "live"
-                ? viewer.source === "seed"
-                  ? "스타터 아카이브"
-                  : "내 아카이브"
-                : "체험 아카이브"}
+              {viewer.mode === "live" && viewer.source === "user"
+                ? "내 기록"
+                : "샘플 보기"}
             </span>
             <ThemeToggle />
             {viewer.user ? (
@@ -78,15 +76,15 @@ export function SiteChrome({
       {viewer.mode === "demo" ? (
         <div className="border-b border-cyan-300/15 bg-cyan-400/10">
           <div className="mx-auto max-w-7xl px-4 py-3 text-sm text-cyan-50 sm:px-6 lg:px-8">
-            지금은 샘플 데이터로 둘러보는 체험 모드예요. Supabase를 연결하고 로그인하면
-            나만의 기록을 저장할 수 있어요.
+            지금은 샘플 기록을 보여주고 있어요. 로그인하면 내 기록을 저장할 수
+            있습니다.
           </div>
         </div>
       ) : viewer.source === "seed" ? (
         <div className="border-b border-amber-300/15 bg-amber-300/10">
           <div className="mx-auto max-w-7xl px-4 py-3 text-sm text-amber-50 sm:px-6 lg:px-8">
-            아직 실제 기록이 없어서 샘플 항목이 먼저 채워져 있어요. 첫 작품을 추가하면
-            바로 내 아카이브로 전환됩니다.
+            아직 기록이 없어 샘플이 먼저 보입니다. 첫 기록을 추가하면 바로 내
+            아카이브로 바뀝니다.
           </div>
         </div>
       ) : null}

@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     }
 
     return getLoginErrorRedirect(
-      "로그인을 완료하지 못했어요. 메일의 링크를 다시 눌러 주세요."
+      "이메일 인증을 완료하지 못했어요. 메일의 링크를 다시 열어 주세요."
     );
   }
 
@@ -60,11 +60,11 @@ export async function GET(request: NextRequest) {
     }
 
     return getLoginErrorRedirect(
-      "로그인을 완료하지 못했어요. 메일의 링크를 다시 눌러 주세요."
+      "이메일 인증을 완료하지 못했어요. 메일의 링크를 다시 열어 주세요."
     );
   }
 
   return getLoginErrorRedirect(
-    "매직 링크에 인증 정보가 없어요. 새 링크를 다시 요청해 주세요."
+    "인증 링크 정보가 없어요. 메일을 다시 확인해 주세요."
   );
 }

@@ -17,15 +17,14 @@ export default async function WishlistPage() {
       <section className={`${shellCardClass} p-8`}>
         <p className="text-xs uppercase tracking-[0.24em] text-muted">위시리스트</p>
         <h1 className="mt-3 font-display text-5xl text-foreground">
-          언젠가 꼭 꺼내볼 작품들
+          나중에 볼 작품
         </h1>
         <p className="mt-3 max-w-2xl text-base leading-8 text-muted">
-          지금 당장은 아니어도 마음 한켠에 오래 남아 있는 작품들을 모아두는
-          자리예요.
+          보고 싶은 작품만 따로 모아둘 수 있어요.
         </p>
         <div className="mt-6">
           <Link href="/archive/new" className={primaryButtonClassName}>
-            위시리스트에 담기
+            새 기록 추가
           </Link>
         </div>
       </section>
@@ -42,11 +41,10 @@ export default async function WishlistPage() {
             아직 비어 있어요
           </p>
           <h2 className="mt-3 font-display text-4xl text-foreground">
-            위시리스트가 비어 있어요
+            담아둔 작품이 없어요
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-8 text-muted">
-            지금은 아니어도 나중에 꼭 보고 싶은 작품이 있다면 위시리스트로
-            표시해보세요.
+            나중에 보고 싶은 작품이 있다면 위시리스트로 표시해 보세요.
           </p>
         </section>
       )}

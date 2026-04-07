@@ -63,7 +63,7 @@ export default async function EntryDetailPage({
 
           <h1 className="mt-6 font-display text-5xl text-foreground">{entry.title}</h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-muted">
-            {entry.review || "아직 한 줄 감상이 없어요."}
+            {entry.review || "한 줄 감상이 없습니다."}
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -84,7 +84,7 @@ export default async function EntryDetailPage({
             <div className="rounded-[1.5rem] border border-white/10 bg-black/10 p-4">
               <p className="text-xs uppercase tracking-[0.24em] text-muted">위시리스트</p>
               <p className="mt-2 text-lg text-foreground">
-                {entry.isWishlist ? "위시리스트에 담겨 있어요" : "위시리스트에는 없어요"}
+                {entry.isWishlist ? "담아둠" : "없음"}
               </p>
             </div>
             <div className="rounded-[1.5rem] border border-white/10 bg-black/10 p-4">
@@ -96,10 +96,10 @@ export default async function EntryDetailPage({
           </div>
 
           <div className="mt-8 space-y-4">
-            <p className="text-xs uppercase tracking-[0.24em] text-muted">자세한 메모</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-muted">메모</p>
             <div className="rounded-[1.75rem] border border-white/10 bg-black/10 p-5">
               <p className="whitespace-pre-line text-base leading-8 text-foreground/90">
-                {entry.memo || "아직 자세한 메모가 없어요."}
+                {entry.memo || "메모가 없습니다."}
               </p>
             </div>
           </div>
@@ -111,23 +111,23 @@ export default async function EntryDetailPage({
                   href={`/archive/${entry.slug}/edit`}
                   className={primaryButtonClassName}
                 >
-                  기록 수정
+                  수정
                 </Link>
                 <form action={deleteEntryAction}>
                   <input type="hidden" name="entryId" value={entry.id} />
                   <input type="hidden" name="returnTo" value={`/archive/${entry.slug}`} />
                   <button type="submit" className={secondaryButtonClassName}>
-                    기록 삭제
+                    삭제
                   </button>
                 </form>
               </>
             ) : mode === "live" && source === "seed" ? (
               <Link href="/archive/new" className={primaryButtonClassName}>
-                내 첫 기록 추가하기
+                새 기록 추가
               </Link>
             ) : (
               <Link href="/login" className={primaryButtonClassName}>
-                로그인하고 수정하기
+                로그인
               </Link>
             )}
           </div>
@@ -155,11 +155,9 @@ export default async function EntryDetailPage({
           {related.length > 0 ? (
             <section className="space-y-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                  비슷한 결의 기록
-                </p>
+                <p className="text-xs uppercase tracking-[0.24em] text-muted">더 보기</p>
                 <h2 className="mt-2 font-display text-3xl text-foreground">
-                  같은 카테고리에서 더 보기
+                  같은 카테고리
                 </h2>
               </div>
               <div className="space-y-4">

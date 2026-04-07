@@ -34,7 +34,7 @@ export function FilterBar({
           type="search"
           name="search"
           defaultValue={filters.search}
-          placeholder="제목으로 찾기"
+          placeholder="제목 검색"
           className={inputClassName}
         />
       </label>
@@ -93,7 +93,7 @@ export function FilterBar({
 
       <div className="flex items-end gap-3">
         <button type="submit" className={primaryButtonClassName}>
-          적용
+          검색
         </button>
         <a href="/archive" className={secondaryButtonClassName}>
           초기화

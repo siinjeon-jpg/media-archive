@@ -8,14 +8,12 @@ export function MonthlyChart({ stats }: { stats: MonthlyStat[] }) {
     <div className={`${subtleCardClass} p-5`}>
       <div className="mb-6 flex items-end justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-muted">
-            월별 흐름
-          </p>
+          <p className="text-xs uppercase tracking-[0.24em] text-muted">월별 기록</p>
           <h3 className="mt-2 font-display text-3xl text-foreground">
-            최근 기록의 흐름
+            최근 6개월
           </h3>
         </div>
-        <p className="text-sm text-muted">최근 6개월</p>
+        <p className="text-sm text-muted">기록 수</p>
       </div>
 
       <div className="grid grid-cols-6 items-end gap-3">

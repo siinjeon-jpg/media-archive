@@ -42,12 +42,10 @@ export default async function ArchivePage({
 
       <section className={`${shellCardClass} flex flex-col gap-6 p-8 lg:flex-row lg:items-end lg:justify-between`}>
         <div className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.24em] text-muted">
-            아카이브
-          </p>
-          <h1 className="font-display text-5xl text-foreground">기록 둘러보기</h1>
+          <p className="text-xs uppercase tracking-[0.24em] text-muted">아카이브</p>
+          <h1 className="font-display text-5xl text-foreground">전체 기록</h1>
           <p className="max-w-2xl text-base leading-8 text-muted">
-            카테고리, 상태, 태그, 평점으로 정리해보면 취향의 흐름이 더 또렷하게 보여요.
+            검색과 필터로 기록을 정리해 보세요.
           </p>
         </div>
 
@@ -68,7 +66,7 @@ export default async function ArchivePage({
             href="/archive/new"
             className={`${primaryButtonClassName} h-full min-h-[104px] rounded-[1.5rem] text-center`}
           >
-            새 기록 남기기
+            새 기록 추가
           </Link>
         </div>
       </section>
@@ -88,7 +86,7 @@ export default async function ArchivePage({
             조건에 맞는 기록이 없어요
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-8 text-muted">
-            검색 범위를 조금 넓히거나 필터를 초기화해보세요.
+            검색어나 필터를 다시 조정해 보세요.
           </p>
         </section>
       )}

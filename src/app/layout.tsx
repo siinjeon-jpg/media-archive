@@ -6,9 +6,9 @@ import { SiteChrome } from "@/components/site-chrome";
 import { getViewerContext } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Aftertaste Archive",
+  title: "애프터테이스트 아카이브",
   description:
-    "A personal media tracking app for manga, anime, movies, dramas, and novels."
+    "만화, 애니, 영화, 드라마, 소설을 기록하는 개인 미디어 아카이브."
 };
 
 const themeScript = `
@@ -29,7 +29,7 @@ export default async function RootLayout({
   const viewer = await getViewerContext();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

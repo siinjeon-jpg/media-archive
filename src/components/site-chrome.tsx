@@ -33,7 +33,7 @@ export function SiteChrome({
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" className="mr-auto flex min-w-[220px] flex-col">
             <span className="font-display text-2xl tracking-[0.08em] text-foreground">
-              Aftertaste Archive
+              애프터테이스트 아카이브
             </span>
             <span className="text-xs uppercase tracking-[0.28em] text-muted">
               오래 남은 장면과 취향을 모아두는 개인 아카이브

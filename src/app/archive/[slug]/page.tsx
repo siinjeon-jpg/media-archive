@@ -6,13 +6,14 @@ import { MediaCard } from "@/components/media-card";
 import { CategoryBadge } from "@/components/category-badge";
 import { StatusPill } from "@/components/status-pill";
 import {
+  STATUS_META,
   primaryButtonClassName,
   secondaryButtonClassName,
   shellCardClass,
   subtleCardClass
 } from "@/lib/media-config";
 import { getEntryBySlug } from "@/lib/data";
-import { getFirstParam, formatShortDate, getConsumptionLabel, titleCase } from "@/lib/utils";
+import { getFirstParam, formatShortDate, getConsumptionLabel } from "@/lib/utils";
 
 export default async function EntryDetailPage({
   params,
@@ -33,7 +34,7 @@ export default async function EntryDetailPage({
     <div className="space-y-6">
       {saved ? (
         <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
-          Entry saved successfully.
+          기록을 저장했어요.
         </div>
       ) : null}
 
@@ -50,7 +51,7 @@ export default async function EntryDetailPage({
             <StatusPill status={entry.status} />
             {entry.isWishlist ? (
               <span className="rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-sm text-foreground">
-                Wishlist
+                위시리스트
               </span>
             ) : null}
             {entry.rating ? (
@@ -62,43 +63,43 @@ export default async function EntryDetailPage({
 
           <h1 className="mt-6 font-display text-5xl text-foreground">{entry.title}</h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-muted">
-            {entry.review || "No one-line review added yet."}
+            {entry.review || "아직 한 줄 감상이 없어요."}
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             <div className="rounded-[1.5rem] border border-white/10 bg-black/10 p-4">
               <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                {getConsumptionLabel(entry.category)} date
+                {getConsumptionLabel(entry.category)}
               </p>
               <p className="mt-2 text-lg text-foreground">
                 {formatShortDate(entry.consumedOn)}
               </p>
             </div>
             <div className="rounded-[1.5rem] border border-white/10 bg-black/10 p-4">
-              <p className="text-xs uppercase tracking-[0.24em] text-muted">Country</p>
+              <p className="text-xs uppercase tracking-[0.24em] text-muted">국가</p>
               <p className="mt-2 text-lg text-foreground">
-                {entry.country || "Not specified"}
+                {entry.country || "미정"}
               </p>
             </div>
             <div className="rounded-[1.5rem] border border-white/10 bg-black/10 p-4">
-              <p className="text-xs uppercase tracking-[0.24em] text-muted">Wishlist</p>
+              <p className="text-xs uppercase tracking-[0.24em] text-muted">위시리스트</p>
               <p className="mt-2 text-lg text-foreground">
-                {entry.isWishlist ? "Saved on your wishlist" : "Not in wishlist"}
+                {entry.isWishlist ? "위시리스트에 담겨 있어요" : "위시리스트에는 없어요"}
               </p>
             </div>
             <div className="rounded-[1.5rem] border border-white/10 bg-black/10 p-4">
-              <p className="text-xs uppercase tracking-[0.24em] text-muted">Status</p>
+              <p className="text-xs uppercase tracking-[0.24em] text-muted">상태</p>
               <p className="mt-2 text-lg text-foreground">
-                {titleCase(entry.status)}
+                {STATUS_META[entry.status].label}
               </p>
             </div>
           </div>
 
           <div className="mt-8 space-y-4">
-            <p className="text-xs uppercase tracking-[0.24em] text-muted">Detailed memo</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-muted">자세한 메모</p>
             <div className="rounded-[1.75rem] border border-white/10 bg-black/10 p-5">
               <p className="whitespace-pre-line text-base leading-8 text-foreground/90">
-                {entry.memo || "No long-form memo yet."}
+                {entry.memo || "아직 자세한 메모가 없어요."}
               </p>
             </div>
           </div>
@@ -110,23 +111,23 @@ export default async function EntryDetailPage({
                   href={`/archive/${entry.slug}/edit`}
                   className={primaryButtonClassName}
                 >
-                  Edit entry
+                  기록 수정
                 </Link>
                 <form action={deleteEntryAction}>
                   <input type="hidden" name="entryId" value={entry.id} />
                   <input type="hidden" name="returnTo" value={`/archive/${entry.slug}`} />
                   <button type="submit" className={secondaryButtonClassName}>
-                    Delete entry
+                    기록 삭제
                   </button>
                 </form>
               </>
             ) : mode === "live" && source === "seed" ? (
               <Link href="/archive/new" className={primaryButtonClassName}>
-                Add your first real entry
+                내 첫 기록 추가하기
               </Link>
             ) : (
               <Link href="/login" className={primaryButtonClassName}>
-                Sign in to edit
+                로그인하고 수정하기
               </Link>
             )}
           </div>
@@ -134,7 +135,7 @@ export default async function EntryDetailPage({
 
         <div className="space-y-6">
           <section className={`${subtleCardClass} p-6`}>
-            <p className="text-xs uppercase tracking-[0.24em] text-muted">Tags</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-muted">태그</p>
             <div className="mt-4 flex flex-wrap gap-2">
               {entry.tags.length > 0 ? (
                 entry.tags.map((tag) => (
@@ -146,7 +147,7 @@ export default async function EntryDetailPage({
                   </span>
                 ))
               ) : (
-                <p className="text-sm text-muted">No tags added yet.</p>
+                <p className="text-sm text-muted">아직 태그가 없어요.</p>
               )}
             </div>
           </section>
@@ -155,10 +156,10 @@ export default async function EntryDetailPage({
             <section className="space-y-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                  Related in archive
+                  비슷한 결의 기록
                 </p>
                 <h2 className="mt-2 font-display text-3xl text-foreground">
-                  More from the same lane
+                  같은 카테고리에서 더 보기
                 </h2>
               </div>
               <div className="space-y-4">

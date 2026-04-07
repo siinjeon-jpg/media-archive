@@ -14,21 +14,21 @@ import { CATEGORIES, STATUSES } from "@/lib/types";
 import { parseCommaSeparatedList, sanitizeText, toSlug } from "@/lib/utils";
 
 const entrySchema = z.object({
-  title: z.string().min(1, "Title is required."),
+  title: z.string().min(1, "제목을 입력해 주세요."),
   category: z.enum(CATEGORIES),
   status: z.enum(STATUSES),
   rating: z.number().int().min(1).max(10).nullable(),
-  review: z.string().max(180, "One-line review should stay under 180 characters."),
+  review: z.string().max(180, "한 줄 감상은 180자 이내로 적어 주세요."),
   memo: z.string(),
-  tags: z.array(z.string()).max(20, "Too many tags."),
-  country: z.string().max(60, "Country should stay concise."),
+  tags: z.array(z.string()).max(20, "태그가 너무 많아요."),
+  country: z.string().max(60, "국가 이름은 짧게 적어 주세요."),
   consumedOn: z.string().optional(),
   isWishlist: z.boolean()
 });
 
-const emailSchema = z.string().email("Enter a valid email address.");
+const emailSchema = z.string().email("올바른 이메일 주소를 입력해 주세요.");
 
-function redirectWithError(path: string, message: string) {
+function redirectWithError(path: string, message: string): never {
   const divider = path.includes("?") ? "&" : "?";
   redirect(`${path}${divider}error=${encodeURIComponent(message)}`);
 }
@@ -76,7 +76,7 @@ export async function saveEntryAction(formData: FormData) {
   if (!isSupabaseConfigured()) {
     redirectWithError(
       returnTo,
-      "Supabase is not configured yet. Add your environment variables to enable saving."
+      "아직 Supabase가 설정되지 않았어요. 저장 기능을 쓰려면 환경 변수를 먼저 추가해 주세요."
     );
   }
 
@@ -86,7 +86,9 @@ export async function saveEntryAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?error=Sign%20in%20to%20save%20entries.");
+    redirect(
+      `/login?error=${encodeURIComponent("기록을 저장하려면 로그인해 주세요.")}`
+    );
   }
 
   const rawRating = sanitizeText(formData.get("rating"));
@@ -106,7 +108,7 @@ export async function saveEntryAction(formData: FormData) {
   if (!parsed.success) {
     redirectWithError(
       returnTo,
-      parsed.error.issues[0]?.message ?? "Please check the form and try again."
+      parsed.error.issues[0]?.message ?? "입력한 내용을 다시 확인해 주세요."
     );
   }
 
@@ -143,7 +145,7 @@ export async function saveEntryAction(formData: FormData) {
       });
 
   if (result.error) {
-    redirectWithError(returnTo, result.error.message);
+    redirectWithError(returnTo, "기록을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
   }
 
   revalidatePath("/");
@@ -161,13 +163,13 @@ export async function deleteEntryAction(formData: FormData) {
   const returnTo = sanitizeText(formData.get("returnTo")) || "/archive";
 
   if (!entryId) {
-    redirectWithError(returnTo, "The entry id is missing.");
+    redirectWithError(returnTo, "기록 정보가 올바르지 않아요.");
   }
 
   if (!isSupabaseConfigured()) {
     redirectWithError(
       returnTo,
-      "Supabase is not configured yet. Connect it first to enable deletion."
+      "아직 Supabase가 설정되지 않았어요. 삭제 기능을 쓰려면 먼저 연결해 주세요."
     );
   }
 
@@ -177,7 +179,9 @@ export async function deleteEntryAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?error=Sign%20in%20to%20delete%20entries.");
+    redirect(
+      `/login?error=${encodeURIComponent("기록을 삭제하려면 로그인해 주세요.")}`
+    );
   }
 
   const { error } = await supabase
@@ -187,7 +191,7 @@ export async function deleteEntryAction(formData: FormData) {
     .eq("user_id", user.id);
 
   if (error) {
-    redirectWithError(returnTo, error.message);
+    redirectWithError(returnTo, "기록을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.");
   }
 
   revalidatePath("/");
@@ -200,7 +204,9 @@ export async function deleteEntryAction(formData: FormData) {
 export async function requestMagicLinkAction(formData: FormData) {
   if (!isSupabaseConfigured()) {
     redirect(
-      "/login?error=Configure%20your%20Supabase%20environment%20variables%20first."
+      `/login?error=${encodeURIComponent(
+        "Supabase 환경 변수를 먼저 설정해 주세요."
+      )}`
     );
   }
 
@@ -209,7 +215,7 @@ export async function requestMagicLinkAction(formData: FormData) {
   if (!emailResult.success) {
     redirect(
       `/login?error=${encodeURIComponent(
-        emailResult.error.issues[0]?.message ?? "Enter a valid email address."
+        emailResult.error.issues[0]?.message ?? "올바른 이메일 주소를 입력해 주세요."
       )}`
     );
   }
@@ -229,7 +235,11 @@ export async function requestMagicLinkAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/login?error=${encodeURIComponent(
+        "매직 링크를 보내지 못했어요. 잠시 후 다시 시도해 주세요."
+      )}`
+    );
   }
 
   redirect("/login?sent=1");

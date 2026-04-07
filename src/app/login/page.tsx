@@ -26,19 +26,19 @@ export default async function LoginPage({
     <div className="mx-auto flex min-h-[70vh] max-w-3xl items-center">
       <section className={`${shellCardClass} w-full p-8 md:p-10`}>
         <p className="text-xs uppercase tracking-[0.24em] text-muted">
-          Supabase auth
+          Supabase 로그인
         </p>
         <h1 className="mt-3 font-display text-5xl text-foreground">
-          Sign in with a magic link
+          매직 링크로 로그인
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-8 text-muted">
-          Use email sign-in to unlock your private archive, persistent entries, and
-          full add/edit/delete functionality.
+          이메일 로그인으로 나만의 아카이브를 열고, 기록 저장과 추가, 수정,
+          삭제 기능을 모두 사용할 수 있어요.
         </p>
 
         {sent ? (
           <div className="mt-6 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
-            Magic link sent. Check your inbox, then come back through the email.
+            매직 링크를 보냈어요. 메일함에서 링크를 눌러 다시 돌아와 주세요.
           </div>
         ) : null}
 
@@ -51,19 +51,19 @@ export default async function LoginPage({
         <form action={requestMagicLinkAction} className="mt-8 space-y-5">
           <label className="block space-y-2">
             <span className="text-xs uppercase tracking-[0.24em] text-muted">
-              Email address
+              이메일 주소
             </span>
             <input
               type="email"
               name="email"
               required
               className={inputClassName}
-              placeholder="you@example.com"
+              placeholder="name@example.com"
             />
           </label>
 
           <button type="submit" className={primaryButtonClassName}>
-            Send magic link
+            매직 링크 보내기
           </button>
         </form>
       </section>

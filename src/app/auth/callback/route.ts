@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
   if (!isSupabaseConfigured()) {
     return getLoginErrorRedirect(
-      "Supabase is not configured yet. Add your environment variables first."
+      "아직 Supabase가 설정되지 않았어요. 환경 변수를 먼저 추가해 주세요."
     );
   }
 
@@ -44,7 +44,9 @@ export async function GET(request: NextRequest) {
       return response;
     }
 
-    return getLoginErrorRedirect(error.message);
+    return getLoginErrorRedirect(
+      "로그인을 완료하지 못했어요. 메일의 링크를 다시 눌러 주세요."
+    );
   }
 
   if (tokenHash && type) {
@@ -57,10 +59,12 @@ export async function GET(request: NextRequest) {
       return response;
     }
 
-    return getLoginErrorRedirect(error.message);
+    return getLoginErrorRedirect(
+      "로그인을 완료하지 못했어요. 메일의 링크를 다시 눌러 주세요."
+    );
   }
 
   return getLoginErrorRedirect(
-    "The magic link is missing the authentication code. Please request a new link."
+    "매직 링크에 인증 정보가 없어요. 새 링크를 다시 요청해 주세요."
   );
 }

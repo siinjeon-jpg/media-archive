@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -32,7 +32,7 @@ export function createServerSupabaseClient() {
         get(name: string) {
           return cookieStore.get(name)?.value;
         },
-        set(name: string, value: string, options) {
+        set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({
               name,
@@ -43,7 +43,7 @@ export function createServerSupabaseClient() {
             // Cookie writes can be ignored from read-only server components.
           }
         },
-        remove(name: string, options) {
+        remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({
               name,
@@ -71,14 +71,14 @@ export function createRouteHandlerSupabaseClient(
         get(name: string) {
           return request.cookies.get(name)?.value;
         },
-        set(name: string, value: string, options) {
+        set(name: string, value: string, options: CookieOptions) {
           response.cookies.set({
             name,
             value,
             ...options
           });
         },
-        remove(name: string, options) {
+        remove(name: string, options: CookieOptions) {
           response.cookies.set({
             name,
             value: "",

@@ -9,7 +9,7 @@ import { signOutAction } from "@/app/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { type ViewerContext } from "@/lib/types";
 
-const navItems = [
+const guestNavItems = [
   { href: "/", label: "홈" },
   { href: "/archive", label: "아카이브" },
   { href: "/dashboard", label: "대시보드" },
@@ -23,6 +23,11 @@ export function SiteChrome({
   children: ReactNode;
   viewer: ViewerContext;
 }) {
+  const homeHref = viewer.user ? "/dashboard" : "/";
+  const navItems = guestNavItems.map((item) =>
+    item.label === "홈" ? { ...item, href: homeHref } : item
+  );
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
       <div className="archive-noise pointer-events-none fixed inset-0 opacity-80" />
@@ -31,7 +36,7 @@ export function SiteChrome({
 
       <header className="sticky top-0 z-40 border-b border-white/10 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="mr-auto flex min-w-[220px] flex-col">
+          <Link href={homeHref} className="mr-auto flex min-w-[220px] flex-col">
             <span className="font-display text-2xl tracking-[0.08em] text-foreground">
               애프터테이스트 아카이브
             </span>

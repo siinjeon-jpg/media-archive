@@ -7,10 +7,11 @@ import { getViewerContext } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: {
-    default: "JP-Log",
-    template: "%s | JP-Log"
+    default: "애프터테이스트 아카이브",
+    template: "%s | 애프터테이스트 아카이브"
   },
-  description: "지도를 물들이며 완성하는 나만의 일본 여행기"
+  description:
+    "애니, 만화, 영화, 드라마, 소설을 정리하는 개인 미디어 아카이브"
 };
 
 const themeScript = `

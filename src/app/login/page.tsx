@@ -20,7 +20,7 @@ export default async function LoginPage() {
           href="/"
           className="text-sm text-muted transition hover:text-foreground"
         >
-          JP-Log
+          애프터테이스트 아카이브
         </Link>
 
         <div className="mt-6 max-w-xl">

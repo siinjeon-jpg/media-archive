@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import "@/app/globals.css";
-import { SiteChrome } from "@/components/site-chrome";
+import { AppShell } from "@/components/app-shell";
 import { getViewerContext } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "애프터테이스트 아카이브",
-  description:
-    "만화, 애니, 영화, 드라마, 소설을 기록하는 개인 미디어 아카이브."
+  title: {
+    default: "JP-Log",
+    template: "%s | JP-Log"
+  },
+  description: "지도를 물들이며 완성하는 나만의 일본 여행기"
 };
 
 const themeScript = `
@@ -34,7 +36,7 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
-        <SiteChrome viewer={viewer}>{children}</SiteChrome>
+        <AppShell viewer={viewer}>{children}</AppShell>
       </body>
     </html>
   );

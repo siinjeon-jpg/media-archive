@@ -15,10 +15,23 @@ function getSafeNextPath(next: string | null) {
   return next;
 }
 
-function getLoginErrorRedirect(message: string) {
-  return NextResponse.redirect(
-    new URL(`/login?error=${encodeURIComponent(message)}`, getSiteUrl())
-  );
+function getAuthErrorRedirect(nextPath: string, message: string) {
+  const target = nextPath.startsWith("/reset-password/update")
+    ? `/reset-password?error=${encodeURIComponent(message)}`
+    : `/login?${new URLSearchParams({
+        ...(nextPath === "/dashboard" ? { mode: "signup" } : {}),
+        error: message
+      }).toString()}`;
+
+  return NextResponse.redirect(new URL(target, getSiteUrl()));
+}
+
+function getCallbackErrorMessage(nextPath: string) {
+  if (nextPath.startsWith("/reset-password/update")) {
+    return "재설정 링크가 유효하지 않거나 만료되었어요. 메일을 다시 요청해 주세요.";
+  }
+
+  return "인증 링크가 유효하지 않거나 만료되었어요. 메일을 다시 확인해 주세요.";
 }
 
 export async function GET(request: NextRequest) {
@@ -29,7 +42,8 @@ export async function GET(request: NextRequest) {
   const nextPath = getSafeNextPath(searchParams.get("next"));
 
   if (!isSupabaseConfigured()) {
-    return getLoginErrorRedirect(
+    return getAuthErrorRedirect(
+      nextPath,
       "아직 Supabase가 설정되지 않았어요. 환경 변수를 먼저 추가해 주세요."
     );
   }
@@ -44,9 +58,7 @@ export async function GET(request: NextRequest) {
       return response;
     }
 
-    return getLoginErrorRedirect(
-      "인증을 완료하지 못했어요. 메일의 링크를 다시 열어 주세요."
-    );
+    return getAuthErrorRedirect(nextPath, getCallbackErrorMessage(nextPath));
   }
 
   if (tokenHash && type) {
@@ -59,12 +71,8 @@ export async function GET(request: NextRequest) {
       return response;
     }
 
-    return getLoginErrorRedirect(
-      "인증을 완료하지 못했어요. 메일의 링크를 다시 열어 주세요."
-    );
+    return getAuthErrorRedirect(nextPath, getCallbackErrorMessage(nextPath));
   }
 
-  return getLoginErrorRedirect(
-    "인증 링크 정보가 없어요. 메일을 다시 확인해 주세요."
-  );
+  return getAuthErrorRedirect(nextPath, getCallbackErrorMessage(nextPath));
 }

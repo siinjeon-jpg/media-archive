@@ -1,176 +1,42 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import {
-  signInWithPasswordAction,
-  signUpWithPasswordAction
-} from "@/app/actions";
-import {
-  inputClassName,
-  primaryButtonClassName,
-  secondaryButtonClassName,
-  shellCardClass,
-  subtleCardClass
-} from "@/lib/media-config";
-import { getViewerContext } from "@/lib/data";
-import { getFirstParam } from "@/lib/utils";
+import Link from "next/link";
 
-export default async function LoginPage({
-  searchParams
-}: {
-  searchParams?: Record<string, string | string[] | undefined>;
-}) {
+import { LoginForm } from "@/components/login-form";
+import { shellCardClass } from "@/lib/media-config";
+import { getViewerContext } from "@/lib/data";
+
+export default async function LoginPage() {
   const viewer = await getViewerContext();
-  const error = getFirstParam(searchParams?.error);
-  const message = getFirstParam(searchParams?.message);
 
   if (viewer.user) {
     redirect("/dashboard");
   }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-5xl items-center">
-      <section className={`${shellCardClass} w-full p-8 md:p-10`}>
-        <div className="max-w-2xl">
+    <main className="flex min-h-screen items-center justify-center px-6 py-16">
+      <section className={`${shellCardClass} w-full max-w-lg px-8 py-10 md:px-10`}>
+        <Link
+          href="/"
+          className="text-sm text-muted transition hover:text-foreground"
+        >
+          JP-Log
+        </Link>
+
+        <div className="mt-6 max-w-xl">
           <p className="text-xs uppercase tracking-[0.24em] text-muted">계정</p>
-          <h1 className="mt-3 font-display text-5xl text-foreground">
+          <h1 className="mt-3 font-display text-4xl text-foreground md:text-5xl">
             로그인 또는 회원가입
           </h1>
-          <p className="mt-4 text-base leading-8 text-muted">
-            이메일과 비밀번호로 내 아카이브를 이어서 사용할 수 있어요.
+          <p className="mt-4 text-sm leading-7 text-muted">
+            이메일과 비밀번호로 기록을 이어 보거나 새 계정을 만들 수 있어요.
           </p>
         </div>
 
-        {message ? (
-          <div className="mt-6 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
-            {message}
-          </div>
-        ) : null}
-
-        {error ? (
-          <div className="mt-6 rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
-            {error}
-          </div>
-        ) : null}
-
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          <section className={`${subtleCardClass} p-6`}>
-            <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-muted">로그인</p>
-              <h2 className="mt-2 font-display text-3xl text-foreground">
-                기존 계정으로 계속하기
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-muted">
-                가입한 이메일과 비밀번호를 입력해 주세요.
-              </p>
-            </div>
-
-            <form action={signInWithPasswordAction} className="mt-6 space-y-4">
-              <label className="block space-y-2">
-                <span className="text-xs uppercase tracking-[0.24em] text-muted">
-                  이메일 주소
-                </span>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  autoComplete="email"
-                  className={inputClassName}
-                  placeholder="name@example.com"
-                />
-              </label>
-
-              <label className="block space-y-2">
-                <span className="text-xs uppercase tracking-[0.24em] text-muted">
-                  비밀번호
-                </span>
-                <input
-                  type="password"
-                  name="password"
-                  required
-                  autoComplete="current-password"
-                  className={inputClassName}
-                  placeholder="비밀번호"
-                />
-              </label>
-
-              <button type="submit" className={`${primaryButtonClassName} w-full`}>
-                로그인
-              </button>
-
-              <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-4">
-                <p className="text-sm text-muted">비밀번호가 기억나지 않나요?</p>
-                <Link
-                  href="/reset-password"
-                  className="mt-3 inline-flex text-sm font-medium text-foreground transition hover:text-cyan-100"
-                >
-                  비밀번호 재설정
-                </Link>
-              </div>
-            </form>
-          </section>
-
-          <section className={`${subtleCardClass} p-6`}>
-            <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-muted">회원가입</p>
-              <h2 className="mt-2 font-display text-3xl text-foreground">
-                새 계정 만들기
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-muted">
-                가입 후 바로 로그인되거나, 설정에 따라 메일 인증이 필요할 수 있어요.
-              </p>
-            </div>
-
-            <form action={signUpWithPasswordAction} className="mt-6 space-y-4">
-              <label className="block space-y-2">
-                <span className="text-xs uppercase tracking-[0.24em] text-muted">
-                  이메일 주소
-                </span>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  autoComplete="email"
-                  className={inputClassName}
-                  placeholder="name@example.com"
-                />
-              </label>
-
-              <label className="block space-y-2">
-                <span className="text-xs uppercase tracking-[0.24em] text-muted">
-                  비밀번호
-                </span>
-                <input
-                  type="password"
-                  name="password"
-                  required
-                  autoComplete="new-password"
-                  className={inputClassName}
-                  placeholder="6자 이상"
-                />
-              </label>
-
-              <label className="block space-y-2">
-                <span className="text-xs uppercase tracking-[0.24em] text-muted">
-                  비밀번호 확인
-                </span>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  required
-                  autoComplete="new-password"
-                  className={inputClassName}
-                  placeholder="비밀번호 다시 입력"
-                />
-              </label>
-
-              <button type="submit" className={`${secondaryButtonClassName} w-full`}>
-                회원가입
-              </button>
-            </form>
-          </section>
+        <div className="mt-8">
+          <LoginForm />
         </div>
       </section>
-    </div>
+    </main>
   );
 }

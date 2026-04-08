@@ -70,20 +70,67 @@ function redirectWithError(path: string, message: string): never {
   redirect(`${path}${divider}error=${encodeURIComponent(message)}`);
 }
 
-function redirectLoginError(message: string): never {
-  redirect(`/login?error=${encodeURIComponent(message)}`);
+type AuthMode = "signin" | "signup";
+type AuthErrorContext = "signin" | "signup" | "reset-request" | "reset-update";
+
+function setOptionalEmail(
+  params: URLSearchParams,
+  email: string | undefined
+) {
+  if (email) {
+    params.set("email", email);
+  }
 }
 
-function redirectLoginMessage(message: string): never {
-  redirect(`/login?message=${encodeURIComponent(message)}`);
+function getLoginPath(
+  mode: AuthMode,
+  key: "error" | "message",
+  value: string,
+  email?: string
+) {
+  const params = new URLSearchParams();
+
+  if (mode === "signup") {
+    params.set("mode", "signup");
+  }
+
+  params.set(key, value);
+  setOptionalEmail(params, email);
+  return `/login?${params.toString()}`;
 }
 
-function redirectResetRequestError(message: string): never {
-  redirect(`/reset-password?error=${encodeURIComponent(message)}`);
+function redirectLoginError(
+  message: string,
+  mode: AuthMode = "signin",
+  email?: string
+): never {
+  redirect(getLoginPath(mode, "error", message, email));
 }
 
-function redirectResetRequestMessage(message: string): never {
-  redirect(`/reset-password?message=${encodeURIComponent(message)}`);
+function redirectLoginMessage(
+  message: string,
+  mode: AuthMode = "signin",
+  email?: string
+): never {
+  redirect(getLoginPath(mode, "message", message, email));
+}
+
+function getResetRequestPath(
+  key: "error" | "message",
+  value: string,
+  email?: string
+) {
+  const params = new URLSearchParams([[key, value]]);
+  setOptionalEmail(params, email);
+  return `/reset-password?${params.toString()}`;
+}
+
+function redirectResetRequestError(message: string, email?: string): never {
+  redirect(getResetRequestPath("error", message, email));
+}
+
+function redirectResetRequestMessage(message: string, email?: string): never {
+  redirect(getResetRequestPath("message", message, email));
 }
 
 function redirectResetUpdateError(message: string): never {
@@ -96,33 +143,78 @@ function getAuthRedirectUrl() {
   return process.env.NODE_ENV !== "production" ? getSiteUrl() : origin || getSiteUrl();
 }
 
-function mapAuthErrorMessage(errorMessage: string, fallback: string) {
+function mapAuthErrorMessage(
+  errorMessage: string,
+  context: AuthErrorContext
+) {
   const normalized = errorMessage.toLowerCase();
 
   if (normalized.includes("invalid login credentials")) {
-    return "이메일 또는 비밀번호를 확인해 주세요.";
+    return "이메일 또는 비밀번호가 맞지 않아요. 비밀번호가 기억나지 않으면 재설정을 이용해 주세요.";
   }
 
   if (normalized.includes("email not confirmed")) {
-    return "이메일 인증을 먼저 완료해 주세요.";
+    return "이메일 인증이 아직 끝나지 않았어요. 메일함의 인증 링크를 확인해 주세요.";
   }
 
-  if (normalized.includes("user already registered")) {
-    return "이미 가입된 이메일입니다. 로그인해 주세요.";
+  if (
+    normalized.includes("user already registered") ||
+    normalized.includes("already been registered")
+  ) {
+    return "이미 가입된 이메일입니다. 로그인하거나 비밀번호 재설정을 이용해 주세요.";
   }
 
   if (
     normalized.includes("password should be at least") ||
-    normalized.includes("password is too short")
+    normalized.includes("password is too short") ||
+    normalized.includes("weak password") ||
+    normalized.includes("password length")
   ) {
     return "비밀번호는 6자 이상 입력해 주세요.";
+  }
+
+  if (normalized.includes("same password")) {
+    return "이전과 다른 새 비밀번호를 입력해 주세요.";
   }
 
   if (normalized.includes("signup is disabled")) {
     return "현재 회원가입을 사용할 수 없어요.";
   }
 
-  return fallback;
+  if (
+    normalized.includes("rate limit") ||
+    normalized.includes("too many requests") ||
+    normalized.includes("over_email_send_rate_limit") ||
+    normalized.includes("security purposes")
+  ) {
+    return context === "reset-request"
+      ? "요청이 많아 재설정 메일을 바로 보낼 수 없어요. 잠시 후 다시 시도해 주세요."
+      : "요청이 많아요. 잠시 후 다시 시도해 주세요.";
+  }
+
+  if (
+    normalized.includes("failed to fetch") ||
+    normalized.includes("network") ||
+    normalized.includes("timeout") ||
+    normalized.includes("unexpected_failure") ||
+    normalized.includes("server error")
+  ) {
+    return "일시적인 문제가 발생했어요. 잠시 후 다시 시도해 주세요.";
+  }
+
+  if (context === "reset-request") {
+    return "재설정 메일을 보내지 못했어요. 잠시 후 다시 시도해 주세요.";
+  }
+
+  if (context === "reset-update") {
+    return "비밀번호를 변경하지 못했어요. 다시 시도해 주세요.";
+  }
+
+  if (context === "signup") {
+    return "회원가입을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.";
+  }
+
+  return "로그인하지 못했어요. 잠시 후 다시 시도해 주세요.";
 }
 
 async function createUniqueSlug(
@@ -290,18 +382,22 @@ export async function deleteEntryAction(formData: FormData) {
 }
 
 export async function signInWithPasswordAction(formData: FormData) {
+  const email = sanitizeText(formData.get("email"));
+
   if (!isSupabaseConfigured()) {
-    redirectLoginError("Supabase 환경 변수를 먼저 설정해 주세요.");
+    redirectLoginError("Supabase 환경 변수를 먼저 설정해 주세요.", "signin", email);
   }
 
   const parsed = signInSchema.safeParse({
-    email: sanitizeText(formData.get("email")),
+    email,
     password: sanitizeText(formData.get("password"))
   });
 
   if (!parsed.success) {
     redirectLoginError(
-      parsed.error.issues[0]?.message ?? "입력한 내용을 다시 확인해 주세요."
+      parsed.error.issues[0]?.message ?? "입력한 내용을 다시 확인해 주세요.",
+      "signin",
+      email
     );
   }
 
@@ -313,10 +409,9 @@ export async function signInWithPasswordAction(formData: FormData) {
 
   if (error) {
     redirectLoginError(
-      mapAuthErrorMessage(
-        error.message,
-        "로그인하지 못했어요. 이메일과 비밀번호를 확인해 주세요."
-      )
+      mapAuthErrorMessage(error.message, "signin"),
+      "signin",
+      parsed.data.email
     );
   }
 
@@ -324,19 +419,23 @@ export async function signInWithPasswordAction(formData: FormData) {
 }
 
 export async function signUpWithPasswordAction(formData: FormData) {
+  const email = sanitizeText(formData.get("email"));
+
   if (!isSupabaseConfigured()) {
-    redirectLoginError("Supabase 환경 변수를 먼저 설정해 주세요.");
+    redirectLoginError("Supabase 환경 변수를 먼저 설정해 주세요.", "signup", email);
   }
 
   const parsed = signUpSchema.safeParse({
-    email: sanitizeText(formData.get("email")),
+    email,
     password: sanitizeText(formData.get("password")),
     confirmPassword: sanitizeText(formData.get("confirmPassword"))
   });
 
   if (!parsed.success) {
     redirectLoginError(
-      parsed.error.issues[0]?.message ?? "입력한 내용을 다시 확인해 주세요."
+      parsed.error.issues[0]?.message ?? "입력한 내용을 다시 확인해 주세요.",
+      "signup",
+      email
     );
   }
 
@@ -351,36 +450,46 @@ export async function signUpWithPasswordAction(formData: FormData) {
 
   if (error) {
     redirectLoginError(
-      mapAuthErrorMessage(
-        error.message,
-        "회원가입을 완료하지 못했어요. 잠시 후 다시 시도해 주세요."
-      )
+      mapAuthErrorMessage(error.message, "signup"),
+      "signup",
+      parsed.data.email
     );
   }
 
   if (Array.isArray(data.user?.identities) && data.user.identities.length === 0) {
-    redirectLoginError("이미 가입된 이메일입니다. 로그인해 주세요.");
+    redirectLoginError(
+      "이미 가입된 이메일입니다. 로그인하거나 비밀번호 재설정을 이용해 주세요.",
+      "signup",
+      parsed.data.email
+    );
   }
 
   if (data.session) {
     redirect("/dashboard");
   }
 
-  redirectLoginMessage("가입 확인 메일을 보냈어요. 메일 인증 후 로그인해 주세요.");
+  redirectLoginMessage(
+    "가입 확인 메일을 보냈어요. 메일 인증 후 로그인해 주세요.",
+    "signup",
+    parsed.data.email
+  );
 }
 
 export async function requestPasswordResetAction(formData: FormData) {
+  const email = sanitizeText(formData.get("email"));
+
   if (!isSupabaseConfigured()) {
-    redirectResetRequestError("Supabase 환경 변수를 먼저 설정해 주세요.");
+    redirectResetRequestError("Supabase 환경 변수를 먼저 설정해 주세요.", email);
   }
 
   const parsed = resetPasswordSchema.safeParse({
-    email: sanitizeText(formData.get("email"))
+    email
   });
 
   if (!parsed.success) {
     redirectResetRequestError(
-      parsed.error.issues[0]?.message ?? "올바른 이메일 주소를 입력해 주세요."
+      parsed.error.issues[0]?.message ?? "올바른 이메일 주소를 입력해 주세요.",
+      email
     );
   }
 
@@ -391,15 +500,14 @@ export async function requestPasswordResetAction(formData: FormData) {
 
   if (error) {
     redirectResetRequestError(
-      mapAuthErrorMessage(
-        error.message,
-        "재설정 메일을 보내지 못했어요. 잠시 후 다시 시도해 주세요."
-      )
+      mapAuthErrorMessage(error.message, "reset-request"),
+      parsed.data.email
     );
   }
 
   redirectResetRequestMessage(
-    "재설정 메일을 보냈어요. 가입된 계정이 있다면 메일을 확인해 주세요."
+    "재설정 메일을 보냈어요. 가입된 계정이 있다면 메일을 확인해 주세요.",
+    parsed.data.email
   );
 }
 
@@ -433,12 +541,7 @@ export async function updatePasswordAction(formData: FormData) {
   });
 
   if (error) {
-    redirectResetUpdateError(
-      mapAuthErrorMessage(
-        error.message,
-        "비밀번호를 변경하지 못했어요. 다시 시도해 주세요."
-      )
-    );
+    redirectResetUpdateError(mapAuthErrorMessage(error.message, "reset-update"));
   }
 
   redirect(

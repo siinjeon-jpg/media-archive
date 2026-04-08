@@ -19,6 +19,7 @@ export default async function ResetPasswordPage({
   const viewer = await getViewerContext();
   const error = getFirstParam(searchParams?.error);
   const message = getFirstParam(searchParams?.message);
+  const email = getFirstParam(searchParams?.email) ?? "";
 
   if (viewer.user) {
     redirect("/dashboard");
@@ -34,7 +35,7 @@ export default async function ResetPasswordPage({
           재설정 메일 보내기
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-8 text-muted">
-          가입한 이메일을 입력하면 비밀번호를 다시 설정할 수 있는 링크를 보내드릴게요.
+          가입한 이메일을 입력해 주세요. 계정이 있다면 비밀번호를 다시 설정할 수 있는 링크를 보내드릴게요.
         </p>
 
         {message ? (
@@ -59,6 +60,8 @@ export default async function ResetPasswordPage({
               name="email"
               required
               autoComplete="email"
+              autoFocus
+              defaultValue={email}
               className={inputClassName}
               placeholder="name@example.com"
             />

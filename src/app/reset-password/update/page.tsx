@@ -47,6 +47,7 @@ export default async function UpdatePasswordPage({
                 type="password"
                 name="password"
                 required
+                minLength={6}
                 autoComplete="new-password"
                 className={inputClassName}
                 placeholder="6자 이상"
@@ -61,6 +62,7 @@ export default async function UpdatePasswordPage({
                 type="password"
                 name="confirmPassword"
                 required
+                minLength={6}
                 autoComplete="new-password"
                 className={inputClassName}
                 placeholder="비밀번호 다시 입력"
@@ -79,7 +81,7 @@ export default async function UpdatePasswordPage({
         ) : (
           <div className="mt-8 space-y-4">
             <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-4 text-sm leading-7 text-muted">
-              재설정 링크를 통해 들어오지 않았다면 먼저 메일을 요청해 주세요.
+              재설정 링크가 만료되었거나 세션이 없어요. 메일을 다시 요청해 주세요.
             </div>
             <Link href="/reset-password" className={primaryButtonClassName}>
               재설정 메일 다시 받기

@@ -47,6 +47,23 @@ const signUpSchema = z
       });
     }
   });
+const resetPasswordSchema = z.object({
+  email: emailSchema
+});
+const updatePasswordSchema = z
+  .object({
+    password: passwordSchema,
+    confirmPassword: z.string().min(1, "비밀번호 확인을 입력해 주세요.")
+  })
+  .superRefine(({ password, confirmPassword }, context) => {
+    if (password !== confirmPassword) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "비밀번호가 서로 다릅니다.",
+        path: ["confirmPassword"]
+      });
+    }
+  });
 
 function redirectWithError(path: string, message: string): never {
   const divider = path.includes("?") ? "&" : "?";
@@ -59,6 +76,18 @@ function redirectLoginError(message: string): never {
 
 function redirectLoginMessage(message: string): never {
   redirect(`/login?message=${encodeURIComponent(message)}`);
+}
+
+function redirectResetRequestError(message: string): never {
+  redirect(`/reset-password?error=${encodeURIComponent(message)}`);
+}
+
+function redirectResetRequestMessage(message: string): never {
+  redirect(`/reset-password?message=${encodeURIComponent(message)}`);
+}
+
+function redirectResetUpdateError(message: string): never {
+  redirect(`/reset-password/update?error=${encodeURIComponent(message)}`);
 }
 
 function getAuthRedirectUrl() {
@@ -338,6 +367,83 @@ export async function signUpWithPasswordAction(formData: FormData) {
   }
 
   redirectLoginMessage("가입 확인 메일을 보냈어요. 메일 인증 후 로그인해 주세요.");
+}
+
+export async function requestPasswordResetAction(formData: FormData) {
+  if (!isSupabaseConfigured()) {
+    redirectResetRequestError("Supabase 환경 변수를 먼저 설정해 주세요.");
+  }
+
+  const parsed = resetPasswordSchema.safeParse({
+    email: sanitizeText(formData.get("email"))
+  });
+
+  if (!parsed.success) {
+    redirectResetRequestError(
+      parsed.error.issues[0]?.message ?? "올바른 이메일 주소를 입력해 주세요."
+    );
+  }
+
+  const supabase = createServerSupabaseClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+    redirectTo: `${getAuthRedirectUrl()}/auth/callback?next=/reset-password/update`
+  });
+
+  if (error) {
+    redirectResetRequestError(
+      mapAuthErrorMessage(
+        error.message,
+        "재설정 메일을 보내지 못했어요. 잠시 후 다시 시도해 주세요."
+      )
+    );
+  }
+
+  redirectResetRequestMessage(
+    "재설정 메일을 보냈어요. 가입된 계정이 있다면 메일을 확인해 주세요."
+  );
+}
+
+export async function updatePasswordAction(formData: FormData) {
+  if (!isSupabaseConfigured()) {
+    redirectResetUpdateError("Supabase 환경 변수를 먼저 설정해 주세요.");
+  }
+
+  const parsed = updatePasswordSchema.safeParse({
+    password: sanitizeText(formData.get("password")),
+    confirmPassword: sanitizeText(formData.get("confirmPassword"))
+  });
+
+  if (!parsed.success) {
+    redirectResetUpdateError(
+      parsed.error.issues[0]?.message ?? "입력한 내용을 다시 확인해 주세요."
+    );
+  }
+
+  const supabase = createServerSupabaseClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirectResetUpdateError("재설정 링크가 유효하지 않아요. 메일을 다시 요청해 주세요.");
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: parsed.data.password
+  });
+
+  if (error) {
+    redirectResetUpdateError(
+      mapAuthErrorMessage(
+        error.message,
+        "비밀번호를 변경하지 못했어요. 다시 시도해 주세요."
+      )
+    );
+  }
+
+  redirect(
+    `/dashboard?message=${encodeURIComponent("비밀번호를 변경했어요.")}`
+  );
 }
 
 export async function signOutAction() {

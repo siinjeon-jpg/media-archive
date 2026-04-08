@@ -3,15 +3,27 @@ import { MonthlyChart } from "@/components/monthly-chart";
 import { CATEGORY_META, STATUS_META } from "@/lib/media-config";
 import { getArchiveData } from "@/lib/data";
 import { shellCardClass, subtleCardClass } from "@/lib/media-config";
+import { getFirstParam } from "@/lib/utils";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams
+}: {
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
   const { summary } = await getArchiveData();
+  const message = getFirstParam(searchParams?.message);
   const categoryMax = Math.max(...summary.categoryBreakdown.map((bucket) => bucket.value), 1);
   const statusMax = Math.max(...summary.statusBreakdown.map((bucket) => bucket.value), 1);
   const countryMax = Math.max(...summary.topCountries.map((bucket) => bucket.value), 1);
 
   return (
     <div className="space-y-6">
+      {message ? (
+        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+          {message}
+        </div>
+      ) : null}
+
       <section className={`${shellCardClass} p-8`}>
         <p className="text-xs uppercase tracking-[0.24em] text-muted">대시보드</p>
         <h1 className="mt-3 font-display text-5xl text-foreground">

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import {
@@ -96,6 +97,16 @@ export default async function LoginPage({
               <button type="submit" className={`${primaryButtonClassName} w-full`}>
                 로그인
               </button>
+
+              <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-4">
+                <p className="text-sm text-muted">비밀번호가 기억나지 않나요?</p>
+                <Link
+                  href="/reset-password"
+                  className="mt-3 inline-flex text-sm font-medium text-foreground transition hover:text-cyan-100"
+                >
+                  비밀번호 재설정
+                </Link>
+              </div>
             </form>
           </section>
 
